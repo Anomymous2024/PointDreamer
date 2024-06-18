@@ -18,6 +18,7 @@ import yaml
 from pointdreamer.ours_utils import *
 from utils.other_utils import read_ply_xyzrgb,save_colored_pc_ply
 from utils.camera_utils import create_cameras
+from utils.utils_2d import save_CHW_RGBA_img
 from models.POCO.generate_1 import POCO_get_geo,create_POCO_network,POCO_config
 import time
 
@@ -151,6 +152,11 @@ def colorize_one_mesh(
                 logger.info(f'inpainting: {time.time() - start_inpainting} s')
             except:
                 pass
+        for i in range(view_num):
+            # hard_mask0s: [view_num,3,res,res]
+            inpainted_rgba = torch.cat([inpainted_images[i],hard_mask0s[i][0].unsqueeze(0)])
+            
+            save_CHW_RGBA_img( inpainted_rgba.cpu().numpy(), os.path.join(save_img_path, f'{i}.png'))
 
     ''' Unproject inpainted 2D rendered images back to 3D'''
     start_unproject = time.time()
@@ -618,14 +624,12 @@ for i in range(1):
 '''
 Example usage:
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/clock.ply
-python demo.py --config configs/default.yaml --pc_file dataset/demo_data/cup.ply
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/PaulFrankLunchBox.ply
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/rolling_lion.ply
 
 python demo.py --config configs/default.yaml --pc_file dataset/NBF_demo_data/2ce6_chair.ply
-python demo.py --config configs/default.yaml --pc_file dataset/NBF_demo_data/70aa_chair.ply
 python demo.py --config configs/wo_NBF.yaml --pc_file dataset/NBF_demo_data/2ce6_chair.ply
-python demo.py --config configs/wo_NBF.yaml --pc_file dataset/NBF_demo_data/70aa_chair.ply
+
 '''
 
 

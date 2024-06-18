@@ -27,7 +27,11 @@ rm -r ShapeNet_None_FKAConv_InterpAttentionKHeadsNet_None
 rm ShapeNet_3k.zip
 ```
 
-The pretrained weight of guided diffusion should be automatically downloaded when runnning demo.py.
+The pretrained weight of [guided diffusion](https://github.com/openai/guided-diffusion) should be automatically downloaded when runnning demo.py. Alternatively, download and move it as 'models/DDNM/256x256_diffusion_uncond.pt':
+```bash
+wget https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt
+mv 256x256_diffusion_uncond.pt models/DDNM/
+```
 
 ## Usage
 To run PointDreamer, use the following command:
@@ -44,14 +48,11 @@ If you'd like to change the output directory, change the 'output_path' in the co
 Here's some examples:
 ```bash
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/clock.ply
-python demo.py --config configs/default.yaml --pc_file dataset/demo_data/cup.ply
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/PaulFrankLunchBox.ply
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/rolling_lion.ply
 
 python demo.py --config configs/default.yaml --pc_file dataset/NBF_demo_data/2ce6_chair.ply
-python demo.py --config configs/default.yaml --pc_file dataset/NBF_demo_data/70aa_chair.ply
 python demo.py --config configs/wo_NBF.yaml --pc_file dataset/NBF_demo_data/2ce6_chair.ply
-python demo.py --config configs/wo_NBF.yaml --pc_file dataset/NBF_demo_data/70aa_chair.ply
 ```
 
 ## Output
@@ -83,6 +84,8 @@ The images are in UV space.
   - white pixels: border-edges, i.e. left_blue - left_red (we delete chart edges, otherwise chart edges will be ignored by all views)
 - Right: border-areas of view k
   - dilate border-edges in middle image, whcih gives us the border-areas.
+![output_explanation](assets/output_explanation.png)
+For example, in this image, the framed area is detected as border-area for this view, so it will be skip first, and other views will have a higher priority to paint the corresponding area. So this area (bottom of chair seat) is painted as 'red', instead of wrongly 'black' in this view.
 
 
 ## Acknolwedgement

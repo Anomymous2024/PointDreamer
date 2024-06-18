@@ -364,6 +364,22 @@ def save_CHW_RGB_img(img,file_name):
 
     image_pil.save(file_name)
 
+def save_CHW_RGBA_img(img,file_name):
+    img=img.transpose(1,2,0) #  # from C,H,W to H,W,C
+    mask = (img==0).astype(np.uint8)
+    img*=255 # from [0,1] to [0,255]
+    img = img.clip(0, 255).astype(np.uint8)
+    # img *= mask
+    # img = np.ascontiguousarray(img[::-1, :, :])
+    img = np.ascontiguousarray(img)
+    # PIL.Image.fromarray(np.ascontiguousarray(img[::-1, :, :]), 'RGB').save(
+    #     os.path.join(save_root, f'{name.split("/")[1]}.png'))
+
+
+    image_pil = PIL.Image.fromarray(img,'RGBA')
+
+    image_pil.save(file_name)
+
 def load_CHW_RGB_img(file_name):
     '''
     CHW,RGB, float, 0-1
@@ -725,15 +741,15 @@ def detect_edges_in_gray_by_scharr(gray_img_uint8):
 @torch.no_grad()
 def getGaussianKernel(ksize, sigma=0):
     if sigma <= 0:
-        # ¸ù¾Ý kernelsize ¼ÆËãÄ¬ÈÏµÄ sigma£¬ºÍ opencv ±£³ÖÒ»ÖÂ
+        # ï¿½ï¿½ï¿½ï¿½ kernelsize ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ïµï¿½ sigmaï¿½ï¿½ï¿½ï¿½ opencv ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
         sigma = 0.3 * ((ksize - 1) * 0.5 - 1) + 0.8
     center = ksize // 2
-    xs = (np.arange(ksize, dtype=np.float32) - center) # ÔªËØÓë¾ØÕóÖÐÐÄµÄºáÏò¾àÀë
-    kernel1d = np.exp(-(xs ** 2) / (2 * sigma ** 2)) # ¼ÆËãÒ»Î¬¾í»ýºË
-    # ¸ù¾ÝÖ¸Êýº¯ÊýÐÔÖÊ£¬ÀûÓÃ¾ØÕó³Ë·¨¿ìËÙ¼ÆËã¶þÎ¬¾í»ýºË
+    xs = (np.arange(ksize, dtype=np.float32) - center) # Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄµÄºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    kernel1d = np.exp(-(xs ** 2) / (2 * sigma ** 2)) # ï¿½ï¿½ï¿½ï¿½Ò»Î¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    # ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½Ã¾ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ï¿½ï¿½Î¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     kernel = kernel1d[..., None] @ kernel1d[None, ...]
     kernel = torch.from_numpy(kernel)
-    kernel = kernel / kernel.sum() # ¹éÒ»»¯
+    kernel = kernel / kernel.sum() # ï¿½ï¿½Ò»ï¿½ï¿½
     return kernel
 
 @torch.no_grad()
@@ -755,27 +771,27 @@ def bilateralFilter(batch_img, ksize, sigmaColor=None, sigmaSpace=None):
     pad = (ksize - 1) // 2
     batch_img_pad = F.pad(batch_img, pad=[pad, pad, pad, pad], mode='reflect')
 
-    # batch_img µÄÎ¬¶ÈÎª BxcxHxW, Òò´ËÒªÑØ×ÅµÚ ¶þ¡¢ÈýÎ¬¶È unfold
+    # batch_img ï¿½ï¿½Î¬ï¿½ï¿½Îª BxcxHxW, ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Åµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¬ï¿½ï¿½ unfold
     # patches.shape:  B x C x H x W x ksize x ksize
     patches = batch_img_pad.unfold(2, ksize, 1).unfold(3, ksize, 1)
     patch_dim = patches.dim()  # 6
-    # Çó³öÏñËØÁÁ¶È²î
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È²ï¿½
     diff_color = patches - batch_img.unsqueeze(-1).unsqueeze(-1)
-    # ¸ù¾ÝÏñËØÁÁ¶È²î£¬¼ÆËãÈ¨ÖØ¾ØÕó
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È²î£¬ï¿½ï¿½ï¿½ï¿½È¨ï¿½Ø¾ï¿½ï¿½ï¿½
     weights_color = torch.exp(-(diff_color ** 2) / (2 * sigmaColor ** 2))
-    # ¹éÒ»»¯È¨ÖØ¾ØÕó
+    # ï¿½ï¿½Ò»ï¿½ï¿½È¨ï¿½Ø¾ï¿½ï¿½ï¿½
     weights_color = weights_color / weights_color.sum(dim=(-1, -2), keepdim=True)
 
-    # »ñÈ¡ gaussian kernel ²¢½«Æä¸´ÖÆ³ÉºÍ weight_color ÐÎ×´ÏàÍ¬µÄ tensor
+    # ï¿½ï¿½È¡ gaussian kernel ï¿½ï¿½ï¿½ï¿½ï¿½ä¸´ï¿½Æ³Éºï¿½ weight_color ï¿½ï¿½×´ï¿½ï¿½Í¬ï¿½ï¿½ tensor
     weights_space = getGaussianKernel(ksize, sigmaSpace).to(device)
     weights_space_dim = (patch_dim - 2) * (1,) + (ksize, ksize)
     weights_space = weights_space.view(*weights_space_dim).expand_as(weights_color)
 
-    # Á½¸öÈ¨ÖØ¾ØÕóÏà³ËµÃµ½×ÜµÄÈ¨ÖØ¾ØÕó
+    # ï¿½ï¿½ï¿½ï¿½È¨ï¿½Ø¾ï¿½ï¿½ï¿½ï¿½ï¿½ËµÃµï¿½ï¿½Üµï¿½È¨ï¿½Ø¾ï¿½ï¿½ï¿½
     weights = weights_space * weights_color
-    # ×ÜÈ¨ÖØ¾ØÕóµÄ¹éÒ»»¯²ÎÊý
+    # ï¿½ï¿½È¨ï¿½Ø¾ï¿½ï¿½ï¿½Ä¹ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     weights_sum = weights.sum(dim=(-1, -2))
-    # ¼ÓÈ¨Æ½¾ù
+    # ï¿½ï¿½È¨Æ½ï¿½ï¿½
     weighted_pix = (weights * patches).sum(dim=(-1, -2)) / weights_sum
     return weighted_pix
 
