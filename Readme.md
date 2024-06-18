@@ -5,7 +5,7 @@ This repository contains the official implementation for the anomyous under-revi
 ## Install
 We tested on torch2.0.0, cuda11.8. Other versions may also work.
 ```bash
-# clone this repo
+git clone https://github.com/Anomymous2024/PointDreamer.git
 cd PointDreamer
 conda create --name pointdreamer python=3.8
 conda activate pointdreamer
@@ -17,12 +17,14 @@ pip install https://data.pyg.org/whl/torch-2.0.0%2Bcu118/torch_cluster-1.6.3%2Bp
 pip install requirements.txt
 ```
 
-Download pretrained weights 'ShapeNet 3k, noise, no normals' of POCO, and put it like 'models/POCO/checkpoint.pth
+Download pretrained weights 'ShapeNet 3k, noise, no normals' of POCO, and put it like 'models/POCO/checkpoint.pth'
 
 ```bash
 wget https://github.com/valeoai/POCO/releases/download/v0.0.0/ShapeNet_3k.zip
 unzip ShapeNet_3k.zip
-mv XXX.pth models/POCO/checkpoint.pth
+mv ShapeNet_None_FKAConv_InterpAttentionKHeadsNet_None/checkpoint.pth models/POCO/
+rm -r ShapeNet_None_FKAConv_InterpAttentionKHeadsNet_None
+rm ShapeNet_3k.zip
 ```
 
 The pretrained weight of guided diffusion should be automatically downloaded when runnning demo.py.
@@ -53,8 +55,35 @@ python demo.py --config configs/wo_NBF.yaml --pc_file dataset/NBF_demo_data/70aa
 ```
 
 ## Output
-TODO
+Here we explain the output results.
+Once you've run the demo, in 'output/[objet_name]_[config_name]', e.g. 'output/clock_default/', it would look like:
+- output/[objet_name]_[config_name]
+  - models
+    - model_normalized.mtl: corresponding material file
+    - model_normalized.obj: **the textured mesh reconstructed by our PointDreamer**
+    - model_normalized.png: corresponding texture file
+  - geo: (the untextured mesh extracted by POCO, and corresponding UV unwrapping results )
+    - ... 
+  - others
+    - {k}_sparse.png: The projected sparse image of view k
+    - {k}_inpainted.png: The inpainted dense image of view k 
+    - {k}_mask0.png: the foreground mask of the generated mesh of view k. 1 for foreground and 0 for background.
+    - {k}_mask2.png: The black pixels in this mask are the pixels to be inpainted for view k.
+    - shrink_per_view_edge:
+      - k.png
+
+Explanation of output/[objet_name]_[config_name]/others/shrink_per_view_edge/k.png:
+The images are in UV space.
+- Left: the 'k-visible-texture-atlas Tk' of view k. 
+  - white pixels: the corresponding areas in atlas T which are visible from view K
+  - black pixels: the corresponding areas in atlas T which are invisible from view K (occluded)
+  - <font color="red">red pixels: edges of chart areas (foreground pixels)</font>
+  - <font color="blue">blue pixels: edges of visible (white) and invisible（black) areas </font>
+- Middle: nont-border-edges of view k
+  - white pixels: border-edges, i.e. left_blue - left_red (we delete chart edges, otherwise chart edges will be ignored by all views)
+- Right: border-areas of view k
+  - dilate border-edges in middle image, whcih gives us the border-areas.
 
 
 ## Acknolwedgement
-This work is built upon DDNM, POCO, and GET3D. Thank the authors for thier amazing work!
+This work is built upon [DDNM](https://github.com/wyhuai/DDNM), [POCO](https://github.com/valeoai/POCO), and [GET3D](https://github.com/nv-tlabs/GET3D). Thank the authors for thier amazing work!
