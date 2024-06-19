@@ -1,5 +1,10 @@
 # PointDreamer: 
 This repository contains the official implementation for the anonymous under-review paper: *''PointDreamer: Zero-shot 3D Textured Mesh Reconstruction from Colored Point Cloud by 2D Inpainting''*.
+PointDreamer takes colored point clouds as input, and reconstructs high-quality textured meshes.
+![teaser](https://github.com/Anomymous2024/PointDreamer/assets/172764122/da82094e-1799-4deb-9c8d-6a6578e57c9c)
+
+
+https://github.com/Anomymous2024/PointDreamer/assets/172764122/f56d6576-f54d-4b5e-b36c-b3b580027028
 
 
 ## Install
