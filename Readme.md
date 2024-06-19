@@ -1,5 +1,5 @@
 # PointDreamer: 
-This repository contains the official implementation for the anonymous under-review paper: PointDreamer: *''Zero-shot 3D Textured Mesh Reconstruction from Colored Point Cloud by 2D Inpainting''*.
+This repository contains the official implementation for the anonymous under-review paper: *''PointDreamer: Zero-shot 3D Textured Mesh Reconstruction from Colored Point Cloud by 2D Inpainting''*.
 
 
 ## Install
@@ -17,7 +17,7 @@ pip install https://data.pyg.org/whl/torch-2.0.0%2Bcu118/torch_cluster-1.6.3%2Bp
 pip install requirements.txt
 ```
 
-Download pre-trained weights 'ShapeNet 3k, noise, no normals' of POCO, and put it like 'models/POCO/checkpoint.pth'
+Download pre-trained weights 'ShapeNet 3k, noise, no normals' of [POCO](https://github.com/valeoai/POCO), and put it like 'models/POCO/checkpoint.pth'
 
 ```bash
 wget https://github.com/valeoai/POCO/releases/download/v0.0.0/ShapeNet_3k.zip
