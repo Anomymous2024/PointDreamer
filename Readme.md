@@ -1,5 +1,5 @@
 # PointDreamer: 
-This repository contains the official implementation for the anomyous under-review paper: PointDreamer: *''Zero-shot 3D Textured Mesh Reconstruction from Colored Point Cloud by 2D Inpainting''*.
+This repository contains the official implementation for the anonymous under-review paper: PointDreamer: *''Zero-shot 3D Textured Mesh Reconstruction from Colored Point Cloud by 2D Inpainting''*.
 
 
 ## Install
@@ -17,7 +17,7 @@ pip install https://data.pyg.org/whl/torch-2.0.0%2Bcu118/torch_cluster-1.6.3%2Bp
 pip install requirements.txt
 ```
 
-Download pretrained weights 'ShapeNet 3k, noise, no normals' of POCO, and put it like 'models/POCO/checkpoint.pth'
+Download pre-trained weights 'ShapeNet 3k, noise, no normals' of POCO, and put it like 'models/POCO/checkpoint.pth'
 
 ```bash
 wget https://github.com/valeoai/POCO/releases/download/v0.0.0/ShapeNet_3k.zip
@@ -42,10 +42,10 @@ python demo.py --config [CONFIG_FILE] --pc_file [PC_FILE]
 - `[PC_FILE]`: path to the input point cloud file (.ply), e.g. 'dataset/demo_data/clock.ply'
 
 By default, the results will be saved at './output'. 
-The reconstructed mesh will be saved at './output/name/models/model_normalized.obj'. Make sure to open it with the '.mtl' and '.png' file in the same folder. For example, use Meshlab or Blender to open it.
+The reconstructed mesh will be saved at './output/name/models/model_normalized.obj'. Make sure to open it with the '.mtl' and '.png' files in the same folder. For example, use Meshlab or Blender to open it.
 If you'd like to change the output directory, change the 'output_path' in the config file.
 
-Here's some examples:
+Here are some examples:
 ```bash
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/clock.ply
 python demo.py --config configs/default.yaml --pc_file dataset/demo_data/PaulFrankLunchBox.ply
@@ -80,13 +80,13 @@ The images are in UV space.
   - black pixels: the corresponding areas in atlas T which are invisible from view K (occluded)
   - <font color="red">red pixels: edges of chart areas (foreground pixels)</font>
   - <font color="blue">blue pixels: edges of visible (white) and invisible（black) areas </font>
-- Middle: nont-border-edges of view k
+- Middle: non-border-edges of view k
   - white pixels: border-edges, i.e. left_blue - left_red (we delete chart edges, otherwise chart edges will be ignored by all views)
 - Right: border-areas of view k
-  - dilate border-edges in middle image, whcih gives us the border-areas.
+  - dilate border-edges in the middle image, which gives us the border-areas.
 ![output_explanation](assets/output_explanation.png)
-For example, in this image, the framed area is detected as border-area for this view, so it will be skip first, and other views will have a higher priority to paint the corresponding area. So this area (bottom of chair seat) is painted as 'red', instead of wrongly 'black' in this view.
+For example, in this image, the framed area is detected as border-area for this view, so it will be skipped first, and other views will have a higher priority to paint the corresponding area. So this area (bottom of chair seat) is painted as 'red', instead of wrongly 'black' in this view.
 
 
 ## Acknolwedgement
-This work is built upon [DDNM](https://github.com/wyhuai/DDNM), [POCO](https://github.com/valeoai/POCO), and [GET3D](https://github.com/nv-tlabs/GET3D). Thank the authors for thier amazing work!
+This work is built upon [DDNM](https://github.com/wyhuai/DDNM), [POCO](https://github.com/valeoai/POCO), and [GET3D](https://github.com/nv-tlabs/GET3D). Thank the authors for their amazing work!
